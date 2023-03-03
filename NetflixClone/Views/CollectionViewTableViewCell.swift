@@ -8,15 +8,17 @@
 import UIKit
 
 protocol CollectionViewTableViewCellDelegate: AnyObject {
-    func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell,viewModel : TitlePreviewViewodel)
+    func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell,viewModel : TitlePreviewViewodel , titlemodel : Title)
 }
 
 class CollectionViewTableViewCell: UITableViewCell {
     
+
     static let identifier = "CollectionViewTableViewCell"
     
     weak var delegate : CollectionViewTableViewCellDelegate?
     private var titles : [Title] = [Title]()
+    private var opt : Title?
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -88,6 +90,9 @@ extension CollectionViewTableViewCell : UICollectionViewDelegate , UICollectionV
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         let title = titles[indexPath.row]
+       
+        
+
         guard let titleName = title.original_title ?? title.original_title else {
             return
         }
@@ -104,14 +109,23 @@ extension CollectionViewTableViewCell : UICollectionViewDelegate , UICollectionV
                     return
                 }
                 let viewModel = TitlePreviewViewodel(title: titleName, youtubeView: videoElement, titleOverView: titleOverview)
+                let titleModel = title
                 
-                self?.delegate?.collectionViewTableViewCellDidTapCell(strongSelf, viewModel: viewModel)
-                                                                
+//                self?.delegate?.collectionViewTableViewCellDidTapCell(strongSelf, viewModel: viewModel)
+                self?.delegate?.collectionViewTableViewCellDidTapCell(strongSelf, viewModel: viewModel , titlemodel : titleModel! )
+
+                
+
+                
             case .failure(let error):
                 print(error.localizedDescription)
             }
         }
+        
+        
+        
     }
+    
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) {[weak self] _ in

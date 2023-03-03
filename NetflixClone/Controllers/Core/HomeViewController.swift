@@ -6,6 +6,7 @@
 //
 
 import UIKit
+
 enum Sections   : Int {
     case Trendingmovies = 0
     case TrendingTv = 1
@@ -15,8 +16,9 @@ enum Sections   : Int {
 }
 
 class HomeViewController: UIViewController {
+
     
-    
+    public var selectedTitle: Title?
     private var randomTrendingMovie : Title?
     private var headerView: HeroHeaderUIView?
     
@@ -48,23 +50,114 @@ class HomeViewController: UIViewController {
         
         homeFeedTable.tableHeaderView = headerView
         configureHeroHeaderView()
-   
+        self.headerView?.playButton.addTarget(self, action:#selector(self.playButtonClick),  for: .touchUpInside)
+        self.headerView?.downloadButton.addTarget(self, action:#selector(self.downloadButtonClick),  for: .touchUpInside)
+
+
         
         
     }
-    private func configureHeroHeaderView(){
-        APICaller.shared.getTrendingMovies {[weak self] result in
+ 
+
+     func buttonPressed(viewModel: TitlePreviewViewodel ){
+        DispatchQueue.main.async { [weak self] in
+            let vc = TitlePreviewViewController()
+//            vc.configure(with: viewModel)
+            vc.configure2(with: viewModel , title: (self?.selectedTitle! ?? self?.randomTrendingMovie)! )
+
+            self?.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+
+    @objc func downloadButtonClick(){
+        guard let title = self.selectedTitle else { return ()}
+       
+        DataPersistenceManager.shared.downloadTitleWith(model: title) {result in
             switch result {
-            case .success(let titles):
-                let selectedTitle = titles.randomElement()
-                self?.randomTrendingMovie = selectedTitle
-                
-                self?.headerView?.configure(with: TitleViewModel(titleName: selectedTitle?.original_title ?? "", posterURL: selectedTitle?.poster_path ?? ""))
+            case .success():
+                NotificationCenter.default.post(name:Notification.Name("Downloaded"), object: nil)
             case .failure(let error):
                 print(error.localizedDescription)
             }
+
+        }
+        
+    }
+        
+    
+    
+    @objc func playButtonClick(){
+       
+        let title = self.selectedTitle
+
+//        let VCC = TitlePreviewViewController()
+//        VCC.playSelectedTitle = title
+//        VCC.downloadButton.addTarget(VCC, action:#selector(VCC.downloadButtonClick),  for: .touchUpInside)
+
+
+        guard let titleName = title?.original_title ?? title?.original_title else {
+            return
+        }
+        APICaller.shared.getMovie(with: titleName + " trailer") { [weak self] result in
+            switch result {
+            case .success(let videoElement):
+                
+                let title = title
+                guard  let titleOverview = title?.overview else {
+                    return
+                }
+                
+                guard self != nil else {
+                    return
+                }
+                let viewModel = TitlePreviewViewodel(title: titleName, youtubeView: videoElement, titleOverView: titleOverview)
+                
+                    
+                self?.buttonPressed(viewModel: viewModel)
+                
+                
+                
+                
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+            
+        }
+        
+    }
+    
+
+
+    public func configureHeroHeaderView(){
+        APICaller.shared.getTrendingMovies {[weak self] result in
+            switch result {
+            case .success(let titles):
+                self?.selectedTitle = titles.randomElement()
+                self?.randomTrendingMovie = self?.selectedTitle
+                
+                self?.headerView?.configure(with: TitleViewModel(titleName: self?.selectedTitle?.original_title ?? "", posterURL: self?.selectedTitle?.poster_path ?? "", titleOverView: ""))
+                let title = self?.selectedTitle
+                guard (title?.original_title ?? title?.original_title) != nil else {
+                    return
+                }
+        
+                
+                
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+            
+            
+            
         
         }
+    
+        
+        
+        
+       
+        
+        
     }
     private func configureNavbar() {
         var image = UIImage(named: "netflixlogo")
@@ -202,13 +295,32 @@ extension HomeViewController: UITableViewDelegate,UITableViewDataSource {
     }
 }
 
+
 extension HomeViewController : CollectionViewTableViewCellDelegate{
-    func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, viewModel: TitlePreviewViewodel) {
+    func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, viewModel: TitlePreviewViewodel,titlemodel : Title) {
+        DispatchQueue.main.async { [weak self] in
+            let vc = TitlePreviewViewController()
+            
+        
+            vc.configure2(with: viewModel , title: (titlemodel ) )
+            
+//            vc.configure(with: viewModel)
+            self?.navigationController?.pushViewController(vc, animated: true)
+        }
+       
+    }
+    
+    
+       func playButtonWasPressed(viewModel:  TitlePreviewViewodel){
         DispatchQueue.main.async { [weak self] in
             let vc = TitlePreviewViewController()
             vc.configure(with: viewModel)
             self?.navigationController?.pushViewController(vc, animated: true)
         }
        
+        
     }
+    
 }
+
+

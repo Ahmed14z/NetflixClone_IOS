@@ -10,7 +10,7 @@ import UIKit
 class HeroHeaderUIView: UIView {
     private var randomTrendingMovie : Title?
 
-    private let downloadButton:UIButton = {
+    public let downloadButton:UIButton = {
        let button = UIButton()
         button.setTitle("Download", for: .normal)
         button.layer.borderColor = UIColor.white.cgColor
@@ -21,7 +21,7 @@ class HeroHeaderUIView: UIView {
         return button
     }()
     
-    private let playButton : UIButton = {
+    public let playButton : UIButton = {
         let button = UIButton()
         button.setTitle("Play", for: .normal)
         button.layer.borderColor = UIColor.white.cgColor
@@ -30,13 +30,14 @@ class HeroHeaderUIView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false // so we can use constraints
         button.layer.cornerRadius = 5
        
-//        button.addTarget(self, action: Selector(playButtonWasPresed(with: TitleViewModel(titleName: <#T##String#>, posterURL: <#T##String#>))), for: .touchUpInside)
+//        button.addTarget(self, action: Selector(playButtonWasPresed(model: TitleViewModel(titleName: Title, posterURL: <#T##String#>, titleOverView: <#T##String?#>)), for: .touchUpInside)
     
 
         return button
         
     }()
     
+
     
     private let heroImageView : UIImageView = {
     let imageView = UIImageView()
@@ -71,6 +72,7 @@ class HeroHeaderUIView: UIView {
             return
         }
         heroImageView.sd_setImage(with: url,completed: nil
+                                  
         )
     }
     

@@ -26,6 +26,9 @@ class DataPersistenceManager{
         }
         let context = appDelegate.persistentContainer.viewContext
         let item = TitleItem(context: context)
+//        let request : NSFetchRequest <TitleItem>
+//        request = TitleItem.fetchRequest()
+        
         
         item.original_title = model.original_title
         
@@ -38,14 +41,30 @@ class DataPersistenceManager{
         item.vote_count = Int64(model.vote_count)
         item.vote_average = model.vote_average
         
+//
+//        if(try context.fetch(request).contains(item)){
+//            completion(.failure(DataBaseError.failedToSaveData))
+//
+//
+//        }else{
+
+    
+
+        
         do{
-          try  context.save()
-            completion(.success(()))
+            
+
+        
+                try  context.save()
+                completion(.success(()))
+        
+           
 
         }catch{
             print(error.localizedDescription)
             completion(.failure(DataBaseError.failedToSaveData))
         }
+//        }
         
         
     }

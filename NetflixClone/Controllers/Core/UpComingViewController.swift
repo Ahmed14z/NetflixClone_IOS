@@ -63,7 +63,7 @@ extension UpComingViewController: UITableViewDelegate , UITableViewDataSource {
             return UITableViewCell()
         }
         let title = titles[indexPath.row]
-        cell.configure(with: TitleViewModel(titleName: (title.original_title ?? title.original_name) ?? "Unknown title name", posterURL: title.poster_path ?? "Unknown"))
+        cell.configure(with: TitleViewModel(titleName: (title.original_title ?? title.original_name) ?? "Unknown title name", posterURL: title.poster_path ?? "Unknown", titleOverView: ""))
         return cell
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -81,7 +81,8 @@ extension UpComingViewController: UITableViewDelegate , UITableViewDataSource {
             case .success(let videoElement):
                 DispatchQueue.main.async {
                     let vc = TitlePreviewViewController()
-                    vc.configure(with: TitlePreviewViewodel(title: titleName, youtubeView: videoElement, titleOverView: title.overview ?? ""))
+                    vc.configure2(with: TitlePreviewViewodel(title: titleName, youtubeView: videoElement, titleOverView: title.overview ?? ""), title: title)
+//                    vc.configure(with: TitlePreviewViewodel(title: titleName, youtubeView: videoElement, titleOverView: title.overview ?? ""))
                     self?.navigationController?.pushViewController(vc, animated: true)
                 }
                
